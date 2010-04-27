@@ -6,6 +6,7 @@ using developwithpassion.bdd.harnesses.mbunit;
 using developwithpassion.bdddoc.core;
 using nothinbutdotnetprep.collections;
 using nothinbutdotnetprep.infrastructure;
+using nothinbutdotnetprep.infrastructure.ranges;
 using nothinbutdotnetprep.infrastructure.searching;
 using nothinbutdotnetprep.tests.utility;
 
@@ -215,16 +216,12 @@ namespace nothinbutdotnetprep.tests
              * movies using different criteria. Feel free to change/remove explicit methods if you find a way to encompass searching
              * without the need for using explicit methods. For this exercise, no linq queries are allowed!!.*/
 
-            public delegate void DoSomething();
-
-            public static void say_hello()
-            {
-                Console.Out.WriteLine("Hello");
-            }
-
             it should_be_able_to_find_all_movies_published_by_pixar = () =>
             {
-                var results = sut.all_movies().all_matching(Where<Movie>.has_a(movie => movie.production_studio).equal_to(ProductionStudio.Pixar));
+                new InclusiveRange<int>(23,44)
+                    .contains(34);
+
+                var results = sut.all_movies().all_matching(Where<Movie>.has_a(x => x.production_studio).equal_to(ProductionStudio.Pixar));
 
                 results.should_only_contain(cars, a_bugs_life);
             };
@@ -238,22 +235,22 @@ namespace nothinbutdotnetprep.tests
 
             it should_be_able_to_find_all_movies_not_published_by_pixar = () =>
             {
-                var results = sut.all_movies().all_matching(Where<Movie>.has_a(x => x.production_studio).not_equal_to(ProductionStudio.Pixar));
+                var results = sut.all_movies().all_matching(Where<Movie>.has_a(x => x.production_studio).not.equal_to_any(ProductionStudio.Pixar));
+
 
                 results.should_not_contain(cars, a_bugs_life);
             };
 
             it should_be_able_to_find_all_movies_published_after_a_certain_year = () =>
             {
-                var results = sut.all_movies().all_matching(new AnonymousCriteria<Movie>(movie => movie.date_published.Year > 2004));
+                var results = sut.all_movies().all_matching(Where<Movie>.has_a(x => x.rating).greater_than(2004));
 
                 results.should_only_contain(the_ring, shrek, theres_something_about_mary);
             };
 
             it should_be_able_to_find_all_movies_published_between_a_certain_range_of_years = () =>
             {
-                var results = sut.all_movies().all_matching(new AnonymousCriteria<Movie>(movie => movie.date_published.Year >= 1982 &&
-                    movie.date_published.Year <=2003));
+                var results = sut.all_movies().all_matching(Where<Movie>.has_a(x => x.date_published.Year).between(1982,2003));
 
                 results.should_only_contain(indiana_jones_and_the_temple_of_doom, a_bugs_life, pirates_of_the_carribean);
             };
